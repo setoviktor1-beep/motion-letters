@@ -615,3 +615,17 @@ body {
         font-size: 0.75rem;
     }
 }
+
+
+/* Text reveal animations */
+.ch { display: inline-block; opacity: 0; transform: translateY(10px); animation: chIn 520ms cubic-bezier(.2,.9,.2,1) forwards; will-change: transform, opacity, filter, clip-path; }
+
+.effect-blur .ch { filter: blur(6px); }
+
+.effect-mask .ch { clip-path: inset(0 100% 0 0); }
+
+@keyframes chIn { to { opacity: 1; transform: translateY(0); filter: blur(0); clip-path: inset(0 0 0 0); } }
+
+.effect-glow .ch { animation: glow 520ms ease-out forwards; }
+
+@keyframes glow { 40% { text-shadow: 0 0 12px rgba(120,180,255,.8), 0 0 28px rgba(120,180,255,.4); } 100% { text-shadow: none; } }
