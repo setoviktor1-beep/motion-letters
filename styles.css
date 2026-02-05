@@ -88,6 +88,8 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
+    padding: 0.2em 0.1em;
+    user-select: none;
 }
 
 .letter:hover {
