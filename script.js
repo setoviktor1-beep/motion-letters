@@ -73,6 +73,10 @@ function init() {
             setActive(index);
         });
 
+        span.addEventListener('click', () => {
+            window.location.href = `./${slide.letter.toLowerCase()}.html`;
+        });
+
         wordEl.appendChild(span);
     });
 
