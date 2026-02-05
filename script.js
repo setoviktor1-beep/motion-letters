@@ -74,15 +74,17 @@ function init() {
             setActive(index);
         });
 
-        // Touch events for mobile
-        span.addEventListener('touchstart', (e) => {
-            e.preventDefault();
+        // Touch events for mobile - just activate, don't prevent default
+        span.addEventListener('touchstart', () => {
             setActive(index);
-        });
+        }, { passive: true });
 
-        // Click/tap to navigate
-        span.addEventListener('click', () => {
-            window.location.href = `./${slide.letter.toLowerCase()}.html`;
+        // Click/tap to navigate - works for both mouse and touch
+        span.addEventListener('click', (e) => {
+            // Small delay to allow animation to show
+            setTimeout(() => {
+                window.location.href = `./${slide.letter.toLowerCase()}.html`;
+            }, 150);
         });
 
         wordEl.appendChild(span);
