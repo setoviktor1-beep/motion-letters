@@ -69,10 +69,18 @@ function init() {
         span.textContent = slide.letter;
         span.dataset.index = index;
 
+        // Mouse events for desktop
         span.addEventListener('mouseenter', () => {
             setActive(index);
         });
 
+        // Touch events for mobile
+        span.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            setActive(index);
+        });
+
+        // Click/tap to navigate
         span.addEventListener('click', () => {
             window.location.href = `./${slide.letter.toLowerCase()}.html`;
         });
