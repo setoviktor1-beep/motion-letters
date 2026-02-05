@@ -475,8 +475,8 @@ body {
 
 @media (max-width: 480px) {
     .brand { font-size: 0.875rem; }
-    .word { font-size: clamp(2.5rem, 15vw, 8rem); letter-spacing: 0.08em; }
-    .letter { padding: 0.15em 0.05em; }
+    .word { font-size: clamp(6rem, 15vw, 18rem); font-weight: 200; letter-spacing: 0.15em; display: flex; user-select: none; -webkit-user-select: none; touch-action: none; }
+    .letter { cursor: pointer; transition: all 0.3s ease; position: relative; padding: 0.2em 0.1em; user-select: none; -webkit-user-select: none; touch-action: manipulation; pointer-events: auto; }
     .panel { bottom: 1.5rem; padding: 0 1rem; }
     .pill { font-size: 0.6rem; padding: 0.35rem 0.875rem; }
     .panel-text { font-size: 0.9rem; }

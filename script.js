@@ -9,42 +9,42 @@ const CONFIG = {
             label: "Phase 01",
             text: "Abstract motion systems.",
             asset: "./assets/letter-01.svg",
-            link: { text: "Explore ↗", href: "#v" }
+            link: { text: "Explore ↗", href: "./v.html" }
         },
         {
             letter: "E",
             label: "Phase 02",
             text: "Signal and noise.",
             asset: "./assets/letter-02.svg",
-            link: { text: "Explore ↗", href: "#e" }
+            link: { text: "Explore ↗", href: "./e.html" }
         },
         {
             letter: "C",
             label: "Phase 03",
             text: "Human × Machine.",
             asset: "./assets/letter-03.svg",
-            link: { text: "Explore ↗", href: "#c" }
+            link: { text: "Explore ↗", href: "./c.html" }
         },
         {
             letter: "T",
             label: "Phase 04",
             text: "Synthetic culture.",
             asset: "./assets/letter-04.svg",
-            link: { text: "Explore ↗", href: "#t" }
+            link: { text: "Explore ↗", href: "./t.html" }
         },
         {
             letter: "O",
             label: "Phase 05",
             text: "Future states.",
             asset: "./assets/letter-05.svg",
-            link: { text: "Explore ↗", href: "#o" }
+            link: { text: "Explore ↗", href: "./o.html" }
         },
         {
             letter: "R",
             label: "Phase 06",
             text: "Infinite possibilities.",
             asset: "./assets/letter-01.svg",
-            link: { text: "Explore ↗", href: "#r" }
+            link: { text: "Explore ↗", href: "./r.html" }
         }
     ]
 };
@@ -62,38 +62,13 @@ const modalEl = document.getElementById('modal');
 const openModalBtn = document.getElementById('openModal');
 const closeModalBtn = document.getElementById('closeModal');
 
-function init() {
-    CONFIG.slides.forEach((slide, index) => {
-        const span = document.createElement('span');
-        span.className = 'letter';
-        span.textContent = slide.letter;
-        span.dataset.index = index;
+// Pointer event state
+let isDragging = false;
+let startX = 0;
+let startY = 0;
+let moved = false;
 
-        // Mouse events for desktop
-        span.addEventListener('mouseenter', () => {
-            setActive(index);
-        });
-
-        // Touch events for mobile - just activate, don't prevent default
-        span.addEventListener('touchstart', () => {
-            setActive(index);
-        }, { passive: true });
-
-        // Click/tap to navigate - works for both mouse and touch
-        span.addEventListener('click', (e) => {
-            // Small delay to allow animation to show
-            setTimeout(() => {
-                window.location.href = `./${slide.letter.toLowerCase()}.html`;
-            }, 150);
-        });
-
-        wordEl.appendChild(span);
-    });
-
-    setActive(0);
-}
-
-function setActive(index) {
+function setActiveIndex(index, options = {}) {
     if (index < 0 || index >= CONFIG.slides.length) return;
 
     activeIndex = index;
@@ -114,14 +89,83 @@ function setActive(index) {
     panelLinkEl.classList.add('visible');
 }
 
+function indexFromPoint(x, y) {
+    const el = document.elementFromPoint(x, y);
+    if (!el || !el.matches('.letter')) return null;
+    return Number(el.dataset.index);
+}
+
+function init() {
+    CONFIG.slides.forEach((slide, index) => {
+        const span = document.createElement('span');
+        span.className = 'letter';
+        span.textContent = slide.letter;
+        span.dataset.index = index;
+        wordEl.appendChild(span);
+    });
+
+    const letters = Array.from(document.querySelectorAll('.letter'));
+
+    // Desktop hover
+    letters.forEach((el) => {
+        el.addEventListener('pointerenter', (e) => {
+            if (e.pointerType !== 'mouse') return;
+            const idx = Number(el.dataset.index);
+            setActiveIndex(idx, { source: 'hover' });
+        });
+    });
+
+    // Pointer down - start tracking
+    window.addEventListener('pointerdown', (e) => {
+        if (!e.target.matches('.letter')) return;
+        isDragging = true;
+        moved = false;
+        startX = e.clientX;
+        startY = e.clientY;
+
+        const idx = Number(e.target.dataset.index);
+        setActiveIndex(idx, { source: 'down' });
+    });
+
+    // Pointer move - drag detection
+    window.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+
+        const dx = Math.abs(e.clientX - startX);
+        const dy = Math.abs(e.clientY - startY);
+        if (dx > 6 || dy > 6) moved = true;
+
+        const idx = indexFromPoint(e.clientX, e.clientY);
+        if (idx !== null) setActiveIndex(idx, { source: 'drag' });
+    });
+
+    // Pointer up - tap vs drag
+    window.addEventListener('pointerup', (e) => {
+        if (!isDragging) return;
+        isDragging = false;
+
+        const idx = indexFromPoint(e.clientX, e.clientY);
+        if (idx === null) return;
+
+        // TAP (no movement) -> open link
+        if (!moved) {
+            const href = CONFIG.slides[idx]?.link?.href;
+            if (href) window.location.href = href;
+        }
+    });
+
+    setActiveIndex(0);
+}
+
 function nextSlide() {
-    setActive((activeIndex + 1) % CONFIG.slides.length);
+    setActiveIndex((activeIndex + 1) % CONFIG.slides.length);
 }
 
 function prevSlide() {
-    setActive((activeIndex - 1 + CONFIG.slides.length) % CONFIG.slides.length);
+    setActiveIndex((activeIndex - 1 + CONFIG.slides.length) % CONFIG.slides.length);
 }
 
+// Wheel navigation (desktop only)
 window.addEventListener("wheel", (e) => {
     e.preventDefault();
 
@@ -138,6 +182,7 @@ window.addEventListener("wheel", (e) => {
     }
 }, { passive: false });
 
+// Keyboard navigation
 window.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
         e.preventDefault();
@@ -150,6 +195,12 @@ window.addEventListener('keydown', (e) => {
     }
 });
 
+// Block touchmove on main stage only
+mainEl.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+}, { passive: false });
+
+// Modal handlers
 openModalBtn.addEventListener('click', () => {
     modalEl.classList.add('open');
 });
