@@ -1,6 +1,6 @@
 function revealText(el, opts = {}) {
     const text = el.dataset.reveal || "";
-    const step = opts.step ?? 0.03;
+    const step = opts.step ?? 0.025;
     const base = opts.base ?? 0;
 
     el.textContent = "";
@@ -18,7 +18,13 @@ function revealText(el, opts = {}) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".reveal-text").forEach((el, i) => {
-        revealText(el, { base: i * 0.15, step: 0.028 });
+    let currentDelay = 0;
+    const charStep = 0.025;
+    const elementGap = 0.15;
+
+    document.querySelectorAll(".reveal-text").forEach((el) => {
+        const text = el.dataset.reveal || "";
+        revealText(el, { base: currentDelay, step: charStep });
+        currentDelay += (text.length * charStep) + elementGap;
     });
 });
